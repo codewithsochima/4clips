@@ -1,7 +1,8 @@
-
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
+
+const uploadRoutes = require('./uploadRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -10,10 +11,13 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// Test route
+// Main route
 app.get('/', (req, res) => {
   res.send('Welcome to the 4Clips API!');
 });
+
+// Video upload routes
+app.use('/api/videos', uploadRoutes);
 
 // Start server
 app.listen(PORT, () => {
