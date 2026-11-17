@@ -1,11 +1,40 @@
-function App() {
-  return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-      <h1 className="text-5xl font-bold text-white">
-        Welcome to 4Clips
-      </h1>
-    </div>
-  )
-}
+import Sidebar, { Logo } from "./components/Sidebar";
+import UploadCard from "./components/UploadCard";
+import Roadmap from "./components/Roadmap";
+import { useVideoUpload } from "./hooks/useVideoUpload";
 
-export default App
+export default function App() {
+  const upload = useVideoUpload();
+
+  return (
+    <div className="flex min-h-full">
+      <Sidebar />
+
+      <div className="flex min-w-0 flex-1 flex-col">
+        <header className="flex items-center justify-between border-b border-line px-4 py-3 lg:hidden">
+          <Logo />
+
+          <span className="grid size-8 place-items-center rounded-full border border-line bg-raised text-sm font-semibold text-white">
+            4
+          </span>
+        </header>
+
+        <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col items-center gap-12 px-4 py-10 sm:py-16 lg:justify-center">
+          <div className="text-center">
+            <h1 className="text-balance text-3xl font-semibold tracking-tight sm:text-5xl">
+              Turn long videos into short clips
+            </h1>
+
+            <p className="mx-auto mt-4 max-w-md text-pretty text-base text-muted">
+              Upload a video to get started. We check it and read its details, so it's ready for clipping as features roll out.
+            </p>
+          </div>
+
+          <UploadCard u={upload} />
+
+          <Roadmap />
+        </main>
+      </div>
+    </div>
+  );
+}
