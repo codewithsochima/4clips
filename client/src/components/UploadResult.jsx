@@ -1,4 +1,3 @@
-
 import Icon from "./Icon";
 import { formatBytes, formatDuration } from "../lib/format";
 
@@ -17,8 +16,16 @@ function Field({ label, value }) {
   );
 }
 
-export default function UploadResult({ result, file, onReset }) {
-  const name = result.originalName || file?.name || result.filename;
+export default function UploadResult({
+  result,
+  file,
+  onReset,
+  onContinue,
+}) {
+  const name =
+    result.originalName ||
+    file?.name ||
+    result.filename;
 
   const resolution =
     result.width && result.height
@@ -36,7 +43,10 @@ export default function UploadResult({ result, file, onReset }) {
         </span>
 
         <div className="min-w-0">
-          <h2 id="done-title" className="text-base font-semibold">
+          <h2
+            id="done-title"
+            className="text-base font-semibold"
+          >
             Upload complete
           </h2>
 
@@ -75,16 +85,16 @@ export default function UploadResult({ result, file, onReset }) {
       <div className="mt-4 flex flex-col gap-2 sm:flex-row">
         <button
           type="button"
-          disabled
-          className="flex-1 cursor-not-allowed rounded-xl bg-white/10 py-3 text-sm font-medium text-muted"
+          onClick={onContinue}
+          className="flex-1 rounded-xl bg-white py-3 text-sm font-semibold text-ink hover:opacity-90"
         >
-          Generate clips (coming soon)
+          Create a clip
         </button>
 
         <button
           type="button"
           onClick={onReset}
-          className="flex-1 rounded-xl bg-white py-3 text-sm font-semibold text-ink hover:opacity-90"
+          className="flex-1 rounded-xl border border-line bg-raised py-3 text-sm font-medium hover:border-muted"
         >
           Upload another video
         </button>

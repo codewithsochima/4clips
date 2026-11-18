@@ -4,8 +4,15 @@ import UploadResult from "./UploadResult";
 import Icon from "./Icon";
 import { formatBytes } from "../lib/format";
 
-export default function UploadCard({ u }) {
-  const { status, file, progress, error, result, canRetry } = u;
+export default function UploadCard({ u, onContinue }) {
+  const {
+    status,
+    file,
+    progress,
+    error,
+    result,
+    canRetry,
+  } = u;
 
   const pct = Math.round(progress * 100);
 
@@ -15,11 +22,14 @@ export default function UploadCard({ u }) {
         result={result}
         file={file}
         onReset={u.reset}
+        onContinue={onContinue}
       />
     );
   }
 
-  const showFile = file && !(status === "error" && !canRetry);
+  // A rejected file shows the empty dropzone again.
+  const showFile =
+    file && !(status === "error" && !canRetry);
 
   return (
     <section
@@ -60,7 +70,11 @@ export default function UploadCard({ u }) {
       )}
 
       {status === "uploading" && (
-        <div className="mt-3" role="status" aria-live="polite">
+        <div
+          className="mt-3"
+          role="status"
+          aria-live="polite"
+        >
           <div className="mb-1.5 flex justify-between text-xs text-muted">
             <span>
               {pct < 100 ? "Uploading" : "Verifying video"}
@@ -87,7 +101,8 @@ export default function UploadCard({ u }) {
           </div>
 
           <p className="mt-1.5 text-xs text-muted">
-            {formatBytes(file.size * progress)} of {formatBytes(file.size)}
+            {formatBytes(file.size * progress)} of{" "}
+            {formatBytes(file.size)}
           </p>
         </div>
       )}
