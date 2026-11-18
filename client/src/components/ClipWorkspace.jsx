@@ -1,8 +1,8 @@
-
 import { useEffect, useMemo, useState } from "react";
 import Timeline from "./Timeline";
 import ClipResult from "./ClipResult";
 import { useClipCreate } from "../hooks/useClipCreate";
+import { useTranscription } from "../hooks/useTranscription";
 import { formatBytes } from "../lib/format";
 import {
   formatTime,
@@ -96,6 +96,8 @@ export default function ClipWorkspace({
 
   const clip = useClipCreate(result.filename);
 
+  const transcription = useTranscription();
+
   const [previewUrl, setPreviewUrl] = useState(null);
   const [previewFailed, setPreviewFailed] = useState(false);
 
@@ -159,6 +161,8 @@ export default function ClipWorkspace({
       ? `Up to ${formatTime(maximumDuration)} from this start. Use seconds, MM:SS or HH:MM:SS.`
       : "Use seconds, MM:SS or HH:MM:SS.";
 
+  const transcribing = transcription.status === "processing";
+
   return (
     <div className="flex w-full flex-col gap-4">
       <section
@@ -183,7 +187,7 @@ export default function ClipWorkspace({
           <button
             type="button"
             onClick={onUploadAnother}
-            disabled={processing}
+            disabled={processing || transcribing}
             className="shrink-0 rounded-lg border border-line bg-raised px-3 py-2 text-sm font-medium hover:border-muted disabled:opacity-50"
           >
             Replace video
@@ -225,6 +229,111 @@ export default function ClipWorkspace({
             value={formatBytes(result.size)}
           />
         </dl>
+      </section>
+
+      {/* AI TRANSCRIPTION SECTION */}
+      <section
+        aria-labelledby="transcription-title"
+        className="rounded-2xl border border-line bg-panel p-4 sm:p-5"
+      >
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h2
+              id="transcription-title"
+              className="text-base font-semibold"
+            >
+              AI Transcription
+            </h2>
+
+            <p className="mt-1 text-sm text-muted">
+              Convert the speech in your video into text.
+            </p>
+          </div>
+
+          <span className="shrink-0 rounded-lg border border-line bg-raised px-2.5 py-1.5 text-xs text-muted">
+            Whisper AI
+          </span>
+        </div>
+
+        {transcription.status !== "success" && (
+          <button
+            type="button"
+            onClick={() => transcription.transcribe(result.filename)}
+            disabled={transcribing}
+            className="mt-4 w-full rounded-xl bg-white py-3 text-sm font-semibold text-ink transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {transcribing
+              ? "Transcribing video…"
+              : transcription.status === "error"
+                ? "Try transcription again"
+                : "Analyze video"}
+          </button>
+        )}
+
+        {transcribing && (
+          <div
+            role="status"
+            aria-live="polite"
+            className="mt-3 rounded-xl bg-ink p-3 text-sm text-muted"
+          >
+            Whisper is listening to your video and converting
+            speech into text. This may take a few minutes.
+          </div>
+        )}
+
+        {transcription.status === "error" && (
+          <div
+            role="alert"
+            className="mt-3 rounded-xl border border-danger/30 bg-danger/10 p-3 text-sm"
+          >
+            <p className="font-medium text-danger">
+              Transcription failed
+            </p>
+
+            <p className="mt-1 text-white/80">
+              {transcription.error}
+            </p>
+          </div>
+        )}
+
+        {transcription.status === "success" && (
+          <div className="mt-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="text-sm font-medium text-ok">
+                Transcription complete
+              </p>
+
+              <span className="text-xs text-muted">
+                Language: {transcription.transcript.language}
+              </span>
+            </div>
+
+            <div className="mt-3 max-h-80 space-y-3 overflow-y-auto rounded-xl bg-ink p-3">
+              {transcription.transcript.segments.length > 0 ? (
+                transcription.transcript.segments.map(
+                  (segment, index) => (
+                    <div
+                      key={`${segment.start}-${index}`}
+                      className="border-b border-line pb-3 last:border-0 last:pb-0"
+                    >
+                      <p className="mb-1 text-xs font-medium tabular-nums text-muted">
+                        {formatTime(segment.start)} – {formatTime(segment.end)}
+                      </p>
+
+                      <p className="text-sm leading-6 text-white/90">
+                        {segment.text}
+                      </p>
+                    </div>
+                  )
+                )
+              ) : (
+                <p className="text-sm text-muted">
+                  No speech was detected in this video.
+                </p>
+              )}
+            </div>
+          </div>
+        )}
       </section>
 
       {clip.status === "success" ? (
