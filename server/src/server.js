@@ -5,6 +5,7 @@ require('dotenv').config();
 const uploadRoutes = require('./uploadRoutes');
 const clipRoutes = require('./clipRoutes');
 const { startCleanup } = require('./cleanup');
+const transcriptionRoutes = require('./transcriptionRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -21,8 +22,8 @@ app.get('/', (req, res) => {
 
 // Video upload routes
 app.use('/api/videos', uploadRoutes);
-
 app.use('/api/clips', clipRoutes);
+app.use('/api/transcription', transcriptionRoutes);
 
 // Start server
 app.listen(PORT, () => {
