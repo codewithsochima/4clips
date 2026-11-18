@@ -3,9 +3,12 @@ const cors = require('cors');
 require('dotenv').config();
 
 const uploadRoutes = require('./uploadRoutes');
+const clipRoutes = require('./clipRoutes');
+const { startCleanup } = require('./cleanup');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+startCleanup();
 
 // Middleware
 app.use(cors());
@@ -18,6 +21,8 @@ app.get('/', (req, res) => {
 
 // Video upload routes
 app.use('/api/videos', uploadRoutes);
+
+app.use('/api/clips', clipRoutes);
 
 // Start server
 app.listen(PORT, () => {
